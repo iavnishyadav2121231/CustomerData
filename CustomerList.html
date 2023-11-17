@@ -209,16 +209,16 @@
                 modify_data(event, uuid, "edit")
 
             }
-            const customer = {
+         const customer = {
                 first_name: data[0].childNodes[0].value,
                 last_name: data[1].childNodes[0].value,
-                street: data[2].childNodes[0].value,
-                address: data[3].childNodes[0].value,
+                address: data[2].childNodes[0].value,
+                state: data[3].childNodes[0].value,
                 city: data[4].childNodes[0].value,
-                state: data[5].childNodes[0].value,
+                street: data[5].childNodes[0].value,
                 email: data[6].childNodes[0].value,
                 phone: data[7].childNodes[0].value,
-            };
+            };;
 
             fetch(proxy + `https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=update&uuid=${uuid}`, {
                 method: 'POST',
