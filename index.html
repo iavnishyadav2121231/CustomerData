@@ -95,6 +95,8 @@
                     document.getElementsByTagName("form")[0].reset()
                     authToken = data.access_token;
                     window.location.href = `CustomerList.html?token=${authToken}`;
+                     subm_btn.disabled = false;
+                    subm_btn.value = "Submit";
 
                 })
                 .catch(error => {
