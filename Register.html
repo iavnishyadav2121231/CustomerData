@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        div {
+            display: flex;
+
+            height: 100vh;
+
+
+        }
+
+        form {
+            font-size: 35px;
+            border: 8px rgb(114, 111, 111) solid;
+            border-radius: 7px;
+            padding: 8px;
+            margin: auto;
+      
+
+        }
+
+        #container {
+            display: grid;
+            
+            grid-template-columns: auto auto;
+            row-gap: 2rem;
+            height: max-content;
+            padding: 12px;
+            column-gap: 25px;
+        }
+
+        @media (max-width: 750px) {
+            #container{
+                grid-template-columns: auto;
+               
+            }
+        }
+
+        #container>input {
+            font-size: 20px;
+            border-radius: 4px;
+            padding: 3px;
+
+        }
+
+        #submit_btn {
+            background-color: rgb(0 133 252);
+            color: white;
+            border-radius: 5px;
+            min-width: auto;
+            padding: 6px;
+            float: right;
+
+
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <form onsubmit="registerCustomer(event)">
+            <b>Register</b>
+            <div id="container">
+                <input type="text" id="firstName" placeholder="First name" required>
+                <input type="text" id="lastName" placeholder="Last name" required>
+                <input type="text" id="street" placeholder="Street">
+                <input type="text" id="address" placeholder="Address">
+                <input type="text" id="city" placeholder="City">
+                <input type="text" id="state" placeholder="State">
+                <input type="email" id="email" placeholder="Email">
+                <input type="tel" id="phone" placeholder="Phone" maxlength="10">
+
+            </div>
+
+            <input id="submit_btn" type="submit" value="submit">
+        </form>
+    </div>
+    <script>
+        let subm_btn = document.getElementById("submit_btn");
+
+        const authToken = new URLSearchParams(window.location.search).get('token');
+        const proxy = "https://corsproxy.io/?"
+
+        function registerCustomer(e) {
+            e.preventDefault();
+            subm_btn.disabled = true;
+            subm_btn.value = "Wait...";
+            const first_name = document.getElementById('firstName').value;
+            const last_name = document.getElementById('lastName').value;
+            const street = document.getElementById('street').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const state = document.getElementById('state').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+
+            // Create a customer object (for demonstration purposes)
+
+
+            fetch(proxy + `https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=create`, {
+                method: 'POST',
+                headers: {
+                    // 'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+
+                },
+                body: JSON.stringify(customer = {
+                    first_name,
+                    last_name,
+                    street,
+                    address,
+                    city,
+                    state,
+                    email,
+                    phone
+                })
+            })
+                .then(response => {
+                    if (response.status != 201) {
+
+                        alert("Registration failed");
+                        throw new Error('Registration failed');
+                    }
+                    document.getElementsByTagName("form")[0].reset()
+
+                    window.location.href = `CustomerList.html?token=${authToken}`;
+
+                })
+                .catch(error => {
+
+                    console.log(error)
+                    subm_btn.disabled = false;
+                    subm_btn.value = "Submit";
+                });
+        }
+
+
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer List</title>
+    <style>
+        table {
+            margin: auto;
+            margin-top: 40px;
+            width: 90%;
+            
+            border-collapse: collapse;
+        }
+
+        input {
+            font-family: cursive;
+            width: 80%;
+          
+
+        }
+        #action{
+          
+            width: 80px;
+        }
+
+
+        #add_btn {
+
+            background-color: blueviolet;
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            font-size: 25px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+
+        <div>
+            <table border="1" cellpadding="10" bordercolor="black" id="customerTable">
+                <caption>
+                    <button id="add_btn">Add Customer</button>
+                    <h2>Customer List</h2>
+                </caption>
+                <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Address</th>
+                        <th>State</th>
+                        <th>City</th>
+                        <th>Street</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th id="action">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        const proxy = "https://corsproxy.io/?"
+        const authToken = new URLSearchParams(window.location.search).get('token');
+        if (authToken) {
+            getCustomerList();
+            document.getElementById("add_btn").addEventListener("click", registration_page);
+
+
+        }
+        function registration_page() {
+            window.location.href = `Register.html?token=${authToken}`;
+        }
+
+
+
+        function getCustomerList() {
+
+            fetch(proxy + `https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=get_customer_list`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${authToken}`
+                }
+            })
+                .then(response => {
+                    if (response.status != 200) {
+                        alert("Some Error Occurred")
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+
+                    populateTableBody(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function populateTableBody(data) {
+
+            const tbody = document.getElementById('tableBody');
+
+            tbody.innerHTML = '';
+
+            for (let i = 0; i < data.length; i++) {
+                const row = document.createElement('tr');
+
+                const properties = ['first_name', 'last_name', 'address', 'state', 'city', 'street', 'email', 'phone'];
+
+                for (let j = 0; j < properties.length; j++) {
+                    let z = data[i][properties[j]];
+                    const cell = document.createElement('td');
+
+                    row.appendChild(cell)
+                    let inputElement = document.createElement("input");
+                    inputElement.type = "text"
+                    inputElement.value = z
+                    inputElement.disabled = true;
+                    inputElement.style.width = ''
+                    cell.appendChild(inputElement)
+
+                }
+
+                const actionCell = document.createElement('td');
+                const uid = data[i]['uuid']
+                let button1 = document.createElement("button");
+                button1.textContent = String.fromCodePoint(9940);
+                button1.onclick = function () {
+                    modify_data(event, uid, "delete")
+                };
+                let button2 = document.createElement("button");
+                button2.textContent = String.fromCodePoint(128393);
+                button2.onclick = function () {
+                    modify_data(event, uid, "edit")
+
+                };
+
+                actionCell.appendChild(button1)
+                actionCell.appendChild(document.createTextNode("\u00A0\u00A0"))
+                actionCell.appendChild(button2)
+                row.appendChild(actionCell);
+
+
+                tbody.appendChild(row);
+            }
+        }
+
+        function modify_data(e, uid, action) {
+
+            if (action === "delete") {
+
+                fetch(proxy + `https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=delete&uuid=${uid}`, {
+                    method: 'POST',
+                    headers: {
+                        // 'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+
+                    },
+
+                })
+                    .then(response => {
+                        if (response.status == 400) {
+                            alert("UUID not found");
+                            throw new Error("Customer Not FOund")
+                        }
+                        else if (response.status != 200) {
+                            alert("Deletion failed");
+                            throw new Error("Deletion failed")
+                        }
+                        return response;
+                    })
+                    .then(data => {
+                        getCustomerList();
+
+                    })
+                    .catch(error => {
+                        alert("Some Error Occurred");
+                        console.log(error)
+                    });
+            }
+            else if (action === "edit") {
+
+                let data = e.currentTarget.parentNode.parentNode.cells;
+                e.currentTarget.textContent = String.fromCodePoint(9989);
+                for (let i = 0; i < 8; i++) {
+                    data[i].childNodes[0].disabled = false
+                }
+                e.currentTarget.onclick = function () {
+                    update_Customer(event, uid, data);
+                };
+
+            }
+        }
+        function update_Customer(e, uuid, data) {
+            e.currentTarget.textContent = String.fromCodePoint(128393);
+            for (let i = 0; i < 8; i++) {
+                data[i].childNodes[0].disabled = true
+            }
+            e.currentTarget.onclick = function () {
+                modify_data(event, uuid, "edit")
+
+            }
+            const customer = {
+                first_name: data[0].childNodes[0].value,
+                last_name: data[1].childNodes[0].value,
+                street: data[2].childNodes[0].value,
+                address: data[3].childNodes[0].value,
+                city: data[4].childNodes[0].value,
+                state: data[5].childNodes[0].value,
+                email: data[6].childNodes[0].value,
+                phone: data[7].childNodes[0].value,
+            };
+
+            fetch(proxy + `https://qa2.sunbasedata.com/sunbase/portal/api/assignment.jsp?cmd=update&uuid=${uuid}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+
+                },
+                body: JSON.stringify(customer)
+
+            })
+                .then(response => {
+
+                    if (response.status != 200) {
+                        alert("Update Failed");
+                        throw new Error("Update failed")
+                    }
+                    return response;
+                }).catch(error => {
+                    console.log(error)
+                    getCustomerList()
+                });
+        }
+    </script>
+</body>
+
+</html>
