@@ -138,7 +138,7 @@
                     modify_data(event, uid, "delete")
                 };
                 let button2 = document.createElement("button");
-                button2.textContent = String.fromCodePoint(128393);
+                button2.textContent = String.fromCodePoint(128221);
                 button2.onclick = function () {
                     modify_data(event, uid, "edit")
 
@@ -201,7 +201,7 @@
             }
         }
         function update_Customer(e, uuid, data) {
-            e.currentTarget.textContent = String.fromCodePoint(128393);
+            e.currentTarget.textContent = String.fromCodePoint(128221);
             for (let i = 0; i < 8; i++) {
                 data[i].childNodes[0].disabled = true
             }
