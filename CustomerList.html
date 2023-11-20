@@ -126,6 +126,9 @@
                     inputElement.value = z
                     inputElement.disabled = true;
                     inputElement.style.width = ''
+                    if(j===0 || j===1){
+                        inputElement.required = true;
+                    }
                     cell.appendChild(inputElement)
 
                 }
